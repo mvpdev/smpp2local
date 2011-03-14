@@ -28,15 +28,15 @@ Create cc_sms DB
 
 setup replication (on the local server):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-curl -X POST http://localhost:5900/_replicate -d '{"source":"http://173.203.94.233:5900/cc_sms", "target":"cc_sms", "continuous":true}'
+curl -X POST http://localhost:5900/_replicate -d '{"source":"http://REMOTE:5900/cc_sms", "target":"cc_sms", "continuous":true}'
 
-curl -X POST http://localhost:5900/_replicate -d '{"source":"cc_sms", "target":"http://173.203.94.233:5900/cc_sms", "continuous":true}'
+curl -X POST http://localhost:5900/_replicate -d '{"source":"cc_sms", "target":"http://REMOTE:5900/cc_sms", "continuous":true}'
 
 Create test documents and check that you can see both on both servers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 curl -X PUT http://localhost:5900/cc_sms/bloup -d '{"title":"Hello, I am from the ground"}'
 
-curl -X PUT http://173.203.94.233:5900/cc_sms/bloup -d '{"title":"Do not panic, I am from the Internet"}'
+curl -X PUT http://REMOTE:5900/cc_sms/bloup -d '{"title":"Do not panic, I am from the Internet"}'
 
 Install SMPP2Local on Kannel Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
