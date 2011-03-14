@@ -1,0 +1,55 @@
+#!/bin/sh -e
+
+. /lib/lsb/init-functions
+
+APPUSER=reg
+SESS_NAME=cc_cherry
+APP_DIR=/home/reg/src/smpp2local
+SCRIPT_NAME=kanouchd.py
+
+start() {
+    screen -S $SESS_NAME -d -m $APP_DIR/$SCRIPT_NAME
+}
+
+soft_stop() {
+    for i in `ps aux | grep -i "$APP_DIR/$SCRIPT_NAME" | grep -v grep | awk '{print $2}' ` ; do
+        kill $i
+    done
+}
+
+hard_stop() {
+    for i in `ps aux | grep -i "$APP_DIR/$SCRIPT_NAME" | grep -v grep | awk '{print $2}' ` ; do
+        kill -9 $i
+    done
+}
+
+stop() {
+    soft_stop
+    sleep 2
+    hard_stop
+    sleep 1
+    screen -S $SESS_NAME -X kill
+}
+
+case "$1" in
+  start)
+    log_daemon_msg "Starting kanouch web server" "kanouchd"
+    start
+    ;;
+  stop)
+    log_daemon_msg "Stopping kanouch web server" "kanouchd"
+    stop
+    ;;
+
+  restart)
+    log_daemon_msg "Restarting kanouch web server" "kanouchd"
+    stop
+    start
+    ;;
+
+  *)
+    log_action_msg "Usage: /etc/init.d/kanouchd {start|stop|restart}"
+    exit 1
+esac
+
+exit 0
