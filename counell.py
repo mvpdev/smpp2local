@@ -12,6 +12,7 @@ this script is meant to be fired at any time to process the pool of
 pending outgoing messages.
 a typical use is to set it as couchdb notification client. '''
 
+import re
 import urllib
 import httplib
 
