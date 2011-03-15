@@ -2,10 +2,15 @@
 
 . /lib/lsb/init-functions
 
-APPUSER=reg
+NAME=kanouchd
+APPUSER=couchdb
 SESS_NAME=cc_cherry
-APP_DIR=/home/reg/src/smpp2local
+APP_DIR=/var/lib/couchdb/smpp2local
 SCRIPT_NAME=kanouchd.py
+
+if [ -f /etc/default/$NAME ] ; then
+    source /etc/default/$NAME
+fi
 
 start() {
     screen -S $SESS_NAME -d -m $APP_DIR/$SCRIPT_NAME
