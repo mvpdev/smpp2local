@@ -13,6 +13,7 @@ pending outgoing messages.
 a typical use is to set it as couchdb notification client. '''
 
 import re
+import sys
 import urllib
 import httplib
 
@@ -28,6 +29,7 @@ def get_messages_from_couch():
     ''' fecthes all pending outgoing messages in couch and return them '''
     messages = []
 
+    # should make this a permanent view for better performances
     map_fun = '''function(doc) {
         if (doc.direction == 'outgoing' && doc.status == 'created')
             emit(doc, null);
@@ -91,8 +93,11 @@ def send_messages_to_kannel(messages):
 
 
 def main():
-    messages = get_messages_from_couch()
-    send_messages_to_kannel(messages)
+
+    while data = sys.stdin.readline():
+        if data:
+            messages = get_messages_from_couch()
+            send_messages_to_kannel(messages)
 
 if __name__ == '__main__':
     main()
