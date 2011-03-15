@@ -21,7 +21,6 @@ import urllib
 import httplib
 import logging as log
 
-
 import couchdb
 
 from config import *
@@ -29,19 +28,29 @@ from config import *
 # global variables holding CouchDB connection and logger
 try:
     couch = couchdb.Server(COUCH_SERVER)
+    database = couch[COUCH_DB]
+except IndexError:
+    die("database %s doesn't exist in CouchDB" % COUCH_DB)
 except:
     die("CouchDB is not started.")
-database = couch[COUCH_DB]
 
 try:
+    # we store CouchDB PID as we want to latter check
+    # that this very process is still running.
+    # if CouchDB restarts, it would not inform us
+    # but would create another counell process and get a new PID.
     COUCH_PID = int(open(COUCH_PID_FILE, 'r').read().strip())
 except:
     die("can't retrieve CouchDB PID.")
+
 log.basicConfig(level=log.INFO, filename=COUNELL_LOG_FILE)
 
 
 def couch_is_running():
-    # send 
+    ''' whether or not (bool) CouchDB is still alive '''
+    # sending signal 0 to a PID
+    # triggers OSError if process is not alive
+    # or if owned by different user.
     try:
         os.kill(COUCH_PID, 0)
     except OSError:
@@ -156,15 +165,18 @@ def main():
             log.info("%d message(s) from CouchDB" % messages.__len__())
             send_messages_to_kannel(messages)
         else:
-            time.sleep(1)
+            time.sleep(SLEEP_INTERVAL)
 
 
 def shutdown(status=0):
+    ''' ensure proper shutdown '''
+    # close log file
     log.shutdown()
     exit(status)
 
 
 def die(message=None):
+    ''' exit with an error message '''
     if message:
         log.critical(message)
     shutdown(1)

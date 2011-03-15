@@ -2,13 +2,14 @@
 # encoding=utf-8
 # maintainer: rgaudin
 
+SLEEP_INTERVAL = 1
+COUCH_CHECK_INTERVAL = 20
 COUNELL_LOG_FILE = '/tmp/counell.log'
 COUCH_SERVER = 'http://localhost:5984/'
 COUCH_DB = 'cc_sms'
 COUCH_KANNEL_VIEW = 'cc/kannel'
 COUCH_SMS_VIEW = 'cc/rapidsms'
 COUCH_PID_FILE = '/var/run/couchdb/couchdb.pid'
-COUCH_CHECK_INTERVAL = 20
 KANOUCHD_PORT = 8090
 KANNEL_SERVER = 'localhost'
 KANNEL_PORT = 13001
