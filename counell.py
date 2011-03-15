@@ -26,6 +26,8 @@ import couchdb
 from config import *
 
 # global variables holding CouchDB connection and logger
+log.basicConfig(level=log.INFO, filename=COUNELL_LOG_FILE)
+
 try:
     couch = couchdb.Server(COUCH_SERVER)
     database = couch[COUCH_DB]
@@ -42,8 +44,6 @@ try:
     COUCH_PID = int(open(COUCH_PID_FILE, 'r').read().strip())
 except:
     die("can't retrieve CouchDB PID.")
-
-log.basicConfig(level=log.INFO, filename=COUNELL_LOG_FILE)
 
 
 def couch_is_running():
@@ -166,20 +166,6 @@ def main():
             send_messages_to_kannel(messages)
         else:
             time.sleep(SLEEP_INTERVAL)
-
-
-def shutdown(status=0):
-    ''' ensure proper shutdown '''
-    # close log file
-    log.shutdown()
-    exit(status)
-
-
-def die(message=None):
-    ''' exit with an error message '''
-    if message:
-        log.critical(message)
-    shutdown(1)
 
 
 if __name__ == '__main__':

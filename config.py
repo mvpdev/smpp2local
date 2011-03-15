@@ -2,9 +2,12 @@
 # encoding=utf-8
 # maintainer: rgaudin
 
+import logging as log
+
 SLEEP_INTERVAL = 1
 COUCH_CHECK_INTERVAL = 20
 COUNELL_LOG_FILE = '/tmp/counell.log'
+KANOUCHD_LOG_FILE = '/tmp/kanouchd.log'
 COUCH_SERVER = 'http://localhost:5984/'
 COUCH_DB = 'cc_sms'
 COUCH_KANNEL_VIEW = 'cc/kannel'
@@ -34,3 +37,16 @@ KANNEL_PATH = "/cgi-bin/sendsms?username=" \
                 'identity': '%(identity)s', 'text': '%(text)s', \
                 'charset': KANNEL_CHARSET, 'coding': KANNEL_CODING}
 KANNEL_URL = "http://%s%s" % (KANNEL_SERVER_STRING, KANNEL_PATH)
+
+def shutdown(status=0):
+    ''' ensure proper shutdown '''
+    # close log file
+    log.shutdown()
+    exit(status)
+
+
+def die(message=None):
+    ''' exit with an error message '''
+    if message:
+        log.critical(message)
+    shutdown(1)
