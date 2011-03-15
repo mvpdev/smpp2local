@@ -54,7 +54,6 @@ def couch_is_running():
     try:
         os.kill(COUCH_PID, 0)
     except OSError:
-        print "OSERROR"
         return False
     else:
         return True
@@ -121,7 +120,7 @@ def send_message_to_kannel(message):
 def http_request(server, path):
     ''' process a GET request to server/path and return acceptance '''
     conn = httplib.HTTPConnection(server)
-    conn.request("GET", path.replace(' ', '+'))
+    conn.request("GET", path)
     ret = conn.getresponse()
     return (ret.status == 202, ret.status)
 
