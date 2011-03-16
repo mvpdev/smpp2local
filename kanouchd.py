@@ -36,9 +36,9 @@ def save_document_to_couch(document):
     database = couch[COUCH_DB] 
 
     # create a Couch document and save it to DB.
-    doc_id = database.create(document)
+    doc_id, doc_rev = database.save(document)
     doc = database[doc_id]
-    return doc
+    return doc_id
 
 class SMSReceiver:
 
