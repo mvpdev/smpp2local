@@ -28,6 +28,11 @@ Install SMPP2Local
 
 * Edit ``local_config.py`` and override server config.
 
+Install cleanup script
+~~~~~~~~~~~~~~~~~~~~~~
+
+``ln -s /var/lib/couchdb/smpp2local/cleanup_obsolete.py /etc/cron.daily/``
+
 Setup Local Server
 ==================
 
@@ -76,6 +81,14 @@ Using the "Temporary View" link on http://localhost:5900/_utils, create two diff
 
 | function(doc) {
 |   if (doc.direction == 'incoming' && doc.status == 'created') {
+|     emit(doc, null);
+|   }
+| }
+
+* cc/processed
+
+| function(doc) {
+|   if (doc.direction && doc.status == 'processed') {
 |     emit(doc, null);
 |   }
 | }
