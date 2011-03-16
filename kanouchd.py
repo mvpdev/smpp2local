@@ -33,12 +33,13 @@ def save_document_to_couch(document):
     # this is not very good for performance
     # but it allows CouchDB restarts without effects.
     couch = couchdb.Server(COUCH_SERVER)
-    database = couch[COUCH_DB] 
+    database = couch[COUCH_DB]
 
     # create a Couch document and save it to DB.
     doc_id, doc_rev = database.save(document)
     doc = database[doc_id]
     return doc_id
+
 
 class SMSReceiver:
 
