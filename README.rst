@@ -58,6 +58,8 @@ Setup Replication
 
     ``curl -X POST http://localhost:5900/_replicate -d '{"source":"cc_sms", "target":"http://REMOTE:5900/cc_sms", "continuous":true}'``
 
+WARNING: continuous replication is not stored after CouchDB restart on CouchDB 0.10.
+
 Create test documents and check that you can see both on both servers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ``curl -X PUT http://localhost:5900/cc_sms/bloup -d '{"title":"Hello, I am from the ground"}'``
