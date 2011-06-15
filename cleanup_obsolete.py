@@ -44,9 +44,8 @@ def get_messages_from_couch():
     for row in results:
         message = row.key
         try:
-            date = message_date = datetime.datetime(*map(int, \
-                                                         re.split('[^\d]', \
-                                                    message['datetime'])[:-1]))
+            date = datetime.datetime(*map(int, re.split('[^\d]', \
+                                          message['datetime'])[:-1]))
         except KeyError:
             # if it has no datetime, it's not
             # for us anyway.
