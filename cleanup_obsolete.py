@@ -46,7 +46,7 @@ def get_messages_from_couch():
         try:
             date = datetime.datetime(*map(int, re.split('[^\d]', \
                                           message['datetime'])[:-1]))
-        except KeyError:
+        except:
             # if it has no datetime, it's not
             # for us anyway.
             continue
