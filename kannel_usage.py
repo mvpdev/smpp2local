@@ -6,6 +6,7 @@
 outputs to either text or HTML """
 
 import os
+import sys
 import re
 import shutil
 import math
@@ -16,6 +17,7 @@ from datetime import datetime, date
 TMP_FOLDER = '/tmp'
 UNKNOWN = 'unknown'
 SMS_PRICE = 20
+KANNEL_LOG = '/var/log/kannel/access.log'
 
 # regexp for matching messages with project.
 # prefix name with priority matching (first match only)
@@ -168,9 +170,7 @@ def read(path):
         msg = msg_for_line(line)
         count.add(msg['month'], msg['project'], msg['nb_sms'])
 
-    bill = billing(count)
-
-    print(output_text(bill, 'html'))
+    return billing(count)
 
 
 def billing(count):
@@ -235,8 +235,14 @@ def output_text(bill, format='text'):
 def main():
     locale.setlocale(locale.LC_ALL, '')
 
-    path = copy_log('./access.log')
-    read(path)
+    if sys.argv.__len__() > 1 and sys.argv[1].replace('-','') in ['h', 'html']:
+        format = 'html'
+    else:
+        format = 'text'
+
+    path = copy_log(KANNEL_LOG)
+    bill = read(path)
+    print(output_text(bill, format))
 
 if __name__ == '__main__':
     main()
