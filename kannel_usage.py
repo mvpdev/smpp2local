@@ -18,6 +18,8 @@ TMP_FOLDER = '/tmp'
 UNKNOWN = 'unknown'
 SMS_PRICE = 20
 KANNEL_LOG = '/var/log/kannel/access.log'
+SMS_CHAR = 160.0
+SMS_UNICHAR = 70.0
 
 # regexp for matching messages with project.
 # prefix name with priority matching (first match only)
@@ -32,10 +34,10 @@ TEXT_ROOT = """
 SMS ACCOUNTING:
 %(months)s """
 TEXT_MONTH = """    %(name)s
-        %(valid)d SMS | %(error)d errors | %(total)d TOTAL
+        %(valid)d SMS | %(error)d errors | %(total)d TOTAL | %(pays)sF
 
 %(projects)s """
-TEXT_PROJECT = """      %(name)s: %(usage)d SMS | **%(pay)d** """
+TEXT_PROJECT = """      %(name)s: %(usage)d SMS | %(bill)d | **%(pays)sF** """
 HTML_ROOT = """<html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -75,10 +77,10 @@ tr.month td {
 </body></html>"""
 HTML_MONTH = """<tr class="month"><td colspan="5">%(name)s</td>
 %(projects)s
-<tr class="total"><td>TOTAL</td><td>%(valid)d</td><td>%(total)d</td><td>%(pays)s</td><td>%(error)d<td></tr>
+<tr class="total"><td>TOTAL</td><td>%(valid)d</td><td>%(total)d</td><td>%(pays)sF</td><td>%(error)d<td></tr>
 </tr>"""
 HTML_PROJECT = """
-<tr><td>%(name)s</td><td>%(usage)d</td><td>%(bill)d</td><td>%(pays)s</td><td>n/a</td></tr>"""
+<tr><td>%(name)s</td><td>%(usage)d</td><td>%(bill)d</td><td>%(pays)sF</td><td>n/a</td></tr>"""
 
 # templates format switcher
 TEMPLATES = {
@@ -131,31 +133,39 @@ def project_for_message(message):
 
 def sms_num_for(text, length):
     """ guesses number of SMS consumed for that message """
-    return length
+    try:
+        unicode(text).decode('ascii')
+        return math.ceil(length / SMS_CHAR)
+    except UnicodeDecodeError:
+        return math.ceil(length / SMS_UNICHAR)
+    return (length / SMS_CHAR)
 
 
 def msg_for_line(line):
     """ msg dict for a log line """
     msg = {}
-    data = line.split()
-    if data[2].lower() == 'receive':
+
+    data = [text.rsplit(']', 1)[0] for text in line.split('[')]
+
+    command = data[0].split(' ', 2)[-1].lower()
+    if command.startswith('receive'):
         msg['direction'] = 'incoming'
-    elif data[2].lower() == 'sent':
+    elif command.startswith('sent'):
+        msg['direction'] = 'outgoing'
+    elif command.startswith('failed'):
         msg['direction'] = 'outgoing'
     else:
         return None
 
-    msg['month'] = data[0][:-3]
-    msg['len'] = int(data[12][1:-1].split(':', 2)[1])
-    user = data[5][1:-1].split(':', 1)[1]
-    text = data[12][1:-1].split(':', 2)[2]
+    msg['month'] = data[0].split()[0][:-3]
+    msg['len'] = int(data[9].split(':', 2)[1])
+    user = data[2].split(':', 1)[1]
+    text = data[9].split(':', 2)[2]
     if user:
         msg['project'] = user
     else:
         msg['project'] = project_for_message(text)
     msg['nb_sms'] = sms_num_for(text, msg['len'])
-    ## debug only
-    #msg['text'] = text
     return msg
 
 
@@ -169,7 +179,8 @@ def read(path):
         if line.lower().split()[2] == 'log':
             continue
         msg = msg_for_line(line)
-        count.add(msg['month'], msg['project'], msg['nb_sms'])
+        if msg:
+            count.add(msg['month'], msg['project'], msg['nb_sms'])
 
     return billing(count)
 
@@ -182,12 +193,16 @@ def billing(count):
     for month, data in count.by_month().items():
 
         # month total data
-        errors = count.by_project()[UNKNOWN][month]
+        try:
+            errors = count.by_project()[UNKNOWN][month]
+        except IndexError:
+            errors = 0
         total_sms = sum(count.by_month()[month].values())
         no_error = total_sms - errors
-
+        amount = total_sms * SMS_PRICE
         bill[month] = {'error': errors, 'valid': no_error, \
-                       'total': total_sms, 'pay': total_sms * SMS_PRICE, \
+                       'total': total_sms, 'pay': amount, \
+                       'pays': locale.format("%d", amount, grouping=True),
                        'projects': {}}
 
         for project, nb in data.items():
