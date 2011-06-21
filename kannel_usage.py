@@ -67,6 +67,7 @@ tr.month td {
 </head>
 <body>
 <h1>SMS ACCOUNTING</h1>
+<p>Generated On %(date)s</p>
 <table>
 <tr><th>Project</th><th>Usage</th><th>Total</th><th>Amount FCFA</th><th>Errors</th></tr>
 %(months)s
@@ -229,7 +230,7 @@ def output_text(bill, format='text'):
                                       'projects': projects_text})
     months_text = "\n".join(months)
 
-    return tpl['root'] % {'months': months_text}
+    return tpl['root'] % {'months': months_text, 'date': datetime.now().strftime('%c')}
 
 
 def main():
