@@ -11,7 +11,7 @@ import re
 import shutil
 import math
 import locale
-from datetime import datetime, date
+from datetime import datetime
 
 # configuration
 TMP_FOLDER = '/tmp'
@@ -226,7 +226,6 @@ def billing(count):
 def output_text(bill, format='text'):
     tpl = TEMPLATES[format.lower()]
 
-    text = []
     months = []
     for month, month_data in bill.items():
 
@@ -256,7 +255,11 @@ def main():
     else:
         format = 'text'
 
-    path = copy_log(KANNEL_LOG)
+    if len(sys.argv) >= 3:
+        path = sys.argv[2]
+    else:
+        path = copy_log(KANNEL_LOG)
+
     bill = read(path)
     print(output_text(bill, format))
 
