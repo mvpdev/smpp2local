@@ -9,6 +9,6 @@ rm -rf ${STAT_FOLDER}
 mkdir -p ${STAT_FOLDER}
 
 cp ${KANNEL_LOGS_FOLDER}/access.log* ${STAT_FOLDER}
-cd ${STAT_FOLDER} && bunzip *.gz && cat access.log* > all_access.log
+cd ${STAT_FOLDER} && gunzip *.gz && cat access.log* > all_access.log
 
 ${USAGE_SCRIPT} --html ${STAT_FOLDER}/all_access.log > ${OUTPUT_FILE}
